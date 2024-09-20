@@ -16,20 +16,21 @@ async function processJob(job) {
       districtName: district_name,
       jobTypeID: job_type_id,
       jobType: job_type,
-      FullTimePartTime: fulltime_parttime,
+      fullTimePartTime: fulltime_parttime,
     } = job;
   
     try {
       const jobExists = await pool.query('SELECT 1 FROM jobs WHERE position_id = $1', [position_id]);
-  
+      const notificationSent = false
+
       if (jobExists.rows.length > 0) {
         console.log('Job posting exists in DB');
       } else {
         await pool.query(
           `INSERT INTO jobs 
-            (position_id, position_title, salary_info, posting_date, expiration_date, full_county_name, city_name, district_name, job_type_id, job_type, fulltime_parttime)
+            (position_id, position_title, salary_info, posting_date, expiration_date, full_county_name, city_name, district_name, job_type_id, job_type, fulltime_parttime, notification_sent)
            VALUES 
-            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+            ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
           [
             position_id,
             position_title,
@@ -42,6 +43,7 @@ async function processJob(job) {
             job_type_id,
             job_type,
             fulltime_parttime,
+            notificationSent,
           ]
         );
         console.log('Job did not exist in DB, added to DB');

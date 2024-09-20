@@ -45,7 +45,7 @@ app.get('/api/fetch_jobs', async (req, res) => {
     }
 })
 
-app.get('/api/clear_jobs', async (req, res) =>{
+app.get('/api/clear_jobs', async (req, res) => {
     try {
         await pool.query('DELETE FROM jobs');
         console.log('Deleted all existing job postings from DB');
@@ -56,6 +56,33 @@ app.get('/api/clear_jobs', async (req, res) =>{
         console.error('Error clearing job table', error);
         res.status(500).send('Server error');
     } 
+})
+
+app.get('/api/jobs_pending_notification', async (req, res) => {
+    try {
+        const response = await pool.query('SELECT * FROM jobs WHERE notification_sent=false')
+
+        console.log(response)
+        res.json(response.rows)
+
+    } catch (error) {
+        console.error(`Error notifying jobs`, error);
+        res.status(500).send('Server error');
+    }
+})
+
+app.get('/api/update_notification_status', async (req, res) => {
+    try {
+        await pool.query('UPDATE jobs SET notification_sent=true WHERE notification_sent=false');
+
+        console.log('notification status updated');
+
+        res.send('Notification status updated');
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error');
+    }
 })
 
 app.listen(port, () => {
