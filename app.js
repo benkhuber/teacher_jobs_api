@@ -12,7 +12,7 @@ app.get('/health', (req, res) => {
   res.send('OK')
 })
 
-app.get('/jobs', async (req, res) => {
+app.get('/api/jobs', async (req, res) => {
     try {
         const response = await pool.query('SELECT * FROM jobs');
         res.json(response.rows);
@@ -22,13 +22,10 @@ app.get('/jobs', async (req, res) => {
     }
 })
 
-app.get('/fetch_jobs', async (req, res) => {
+app.get('/api/fetch_jobs', async (req, res) => {
     const url = process.env.API_URL;
 
     try {
-        await pool.query('DELETE FROM jobs');
-        console.log('Deleted all existing job postings from DB');
-
         const response = await axios.get(url);
 
         if (response.status === 200) {
@@ -46,6 +43,19 @@ app.get('/fetch_jobs', async (req, res) => {
         console.error('Error fetching data:', error);
         res.status(500).send('Server error');
     }
+})
+
+app.get('/api/clear_jobs', async (req, res) =>{
+    try {
+        await pool.query('DELETE FROM jobs');
+        console.log('Deleted all existing job postings from DB');
+
+        res.send(`Jobs Cleared`)
+
+    } catch (error) {
+        console.error('Error clearing job table', error);
+        res.status(500).send('Server error');
+    } 
 })
 
 app.listen(port, () => {
