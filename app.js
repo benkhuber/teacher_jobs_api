@@ -68,7 +68,17 @@ app.get('/api/clear_expired_jobs', async (req, res) => {
     try {
         const response = await pool.query('SELECT * FROM jobs WHERE expiration_date < NOW()')
 
-        res.json(response.rows)
+        if (response.rows[0] != undefined) {
+            const jobs = response.rows
+
+            for (const job of jobs) {
+                deleteJob(job)
+            }
+            res.send(`Status: ${response.status}, deleting expired jobs.`);
+        } else {
+            console.log('No expired jobs found');
+            res.send(`No expired jobs found.`);
+        } 
     } catch (error) {
         console.error(error)
         res.status(500).send('Server error')
@@ -92,12 +102,34 @@ app.get('/api/update_notification_status', async (req, res) => {
     try {
         await pool.query('UPDATE jobs SET notification_sent=true WHERE notification_sent=false');
 
-        console.log('notification status updated');
-
         res.send('Notification status updated');
 
     } catch (error) {
         console.error(error);
+        res.status(500).send('Server error');
+    }
+})
+
+app.get('/api/add_test_job_posting', async (req, res) => {
+    const url = process.env.API_URL;
+    try {
+        const response = await axios.get(url);
+
+        if (response.status === 200) {
+            const jobs = response.data.data;
+
+            jobs[0]['displayUntil'] = '/Date(946684800000)/'
+            jobs[0]['postingID'] = 9999999
+
+            addJob(jobs[0]);
+
+            res.send(`Status: ${response.status}, collecting jobs...`);
+        } else {
+            console.log(`Request failed: ${response.status}`);
+            res.status(response.status).send(`Request failed: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
         res.status(500).send('Server error');
     }
 })
