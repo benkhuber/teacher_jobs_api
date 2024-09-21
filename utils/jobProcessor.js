@@ -1,6 +1,6 @@
 const pool = require('../db')
 
-async function processJob(job) {
+async function addJob(job) {
     const rawPostingDate = parseInt(job['postingDate'].replace('/Date(', '').replace(')/', '')) / 1000;
     const rawExpirationDate = parseInt(job['displayUntil'].replace('/Date(', '').replace(')/', '')) / 1000;
   
@@ -52,5 +52,15 @@ async function processJob(job) {
       console.error('Error processing job:', error);
     }
   }
+
+async function deleteJob(job) {
+  console.log(job.position_id)
+
+  await pool.query(`DELETE FROM jobs WHERE position_id=${job.position_id}`)
+  console.log(`${job.position_id} deleted`)
+}
   
-  module.exports = processJob;
+  module.exports = {
+    addJob,
+    deleteJob
+  };

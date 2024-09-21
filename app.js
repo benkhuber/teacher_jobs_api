@@ -5,7 +5,7 @@ const axios = require('axios');
 const app = express()
 const port = process.env.PORT
 const pool = require('./db');
-const processJob = require('./utils/jobProcessor')
+const { addJob, deleteJob } = require('./utils/jobProcessor')
 
 
 app.get('/health', (req, res) => {
@@ -24,7 +24,6 @@ app.get('/api/jobs', async (req, res) => {
 
 app.get('/api/fetch_jobs', async (req, res) => {
     const url = process.env.API_URL;
-
     try {
         const response = await axios.get(url);
 
@@ -32,7 +31,7 @@ app.get('/api/fetch_jobs', async (req, res) => {
             const jobs = response.data.data;
 
             for (const job of jobs) {
-                processJob(job)
+                addJob(job)
             }
             res.send(`Status: ${response.status}, collecting jobs...`);
         } else {
@@ -45,17 +44,35 @@ app.get('/api/fetch_jobs', async (req, res) => {
     }
 })
 
-app.get('/api/clear_jobs', async (req, res) => {
+app.get('/api/clear_all_jobs', async (req, res) => {
+    const url = process.env.SERVER_URL
     try {
-        await pool.query('DELETE FROM jobs');
-        console.log('Deleted all existing job postings from DB');
+        const response = await axios.get(`${url}/api/jobs`);
 
-        res.send(`Jobs Cleared`)
+        if (response.status === 200) {
+            const jobs = response.data
+
+            for (const job of jobs) {
+                deleteJob(job)
+            }
+        }
+        res.send(`Status: ${response.status}, clearing jobs...`);
 
     } catch (error) {
         console.error('Error clearing job table', error);
         res.status(500).send('Server error');
     } 
+})
+
+app.get('/api/clear_expired_jobs', async (req, res) => {
+    try {
+        const response = await pool.query('SELECT * FROM jobs WHERE expiration_date < NOW()')
+
+        res.json(response.rows)
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Server error')
+    }
 })
 
 app.get('/api/jobs_pending_notification', async (req, res) => {
