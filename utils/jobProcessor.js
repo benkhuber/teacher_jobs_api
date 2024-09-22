@@ -54,10 +54,11 @@ async function addJob(job) {
   }
 
 async function deleteJob(job) {
-  console.log(job.position_id)
-
-  await pool.query(`DELETE FROM jobs WHERE position_id=${job.position_id}`)
-  console.log(`${job.position_id} deleted`)
+  try {
+    await pool.query(`DELETE FROM jobs WHERE position_id=${job.position_id}`)
+  } catch (error) {
+    console.error('Error deleting job:', error);
+  }
 }
   
   module.exports = {
