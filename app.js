@@ -7,7 +7,6 @@ const port = process.env.PORT
 const pool = require('./db');
 const { addJob, deleteJob } = require('./utils/jobProcessor')
 
-
 app.get('/health', (req, res) => {
   res.send('OK')
 })
