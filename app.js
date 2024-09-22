@@ -117,7 +117,7 @@ app.get('/api/add_test_job_posting', async (req, res) => {
         if (response.status === 200) {
             const jobs = response.data.data;
 
-            jobs[0]['displayUntil'] = '/Date(946684800000)/'
+            jobs[0]['displayUntil'] = '/Date(1695055800000)/'
             jobs[0]['postingID'] = 9999999
 
             addJob(jobs[0]);
