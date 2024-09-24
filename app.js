@@ -1,5 +1,6 @@
 require('dotenv').config();
-const express = require('express')
+const express = require('express');
+const bodyParser = require('body-parser');
 const axios = require('axios');
 
 const app = express()
@@ -10,6 +11,9 @@ const { getJobPostings,
         addJob, 
         deleteJob } = require('./utils/jobProcessor')
 const { notifyAllJobsPostings } = require('./utils/emailNotification')
+
+app.use(bodyParser.json());
+app.use(express.static('public')); 
 
 app.get('/health', (req, res) => {
   res.send('OK')
@@ -22,6 +26,27 @@ app.get('/api/jobs', async (req, res) => {
     } catch (error) {
         console.error('Error fetching jobs', error);
         res.status(500).send('server error');
+    }
+})
+
+app.post('/api/subscribe', async (req, res) => {
+    const { email } = req.body;
+
+    console.log(email);
+
+    try {
+        // Check if the email is already subscribed (optional)
+        const existingEmail = await pool.query('SELECT * FROM email_subscribers WHERE email = $1', [email]);
+        if (existingEmail.rows.length > 0) {
+            return res.status(400).json({ message: 'Email is already subscribed.' });
+        }
+
+        // Insert the email into the database
+        await pool.query('INSERT INTO email_subscribers (email) VALUES ($1)', [email]);
+        res.status(200).json({ message: 'Thank you for subscribing!' });
+    } catch (error) {
+        console.error('Error subscribing email:', error);
+        res.status(500).json({ message: 'An error occurred. Please try again later.' });
     }
 })
 
@@ -92,7 +117,6 @@ app.get('/api/jobs_pending_notification', async (req, res) => {
     try {
         const response = await getJobPostingsPendingNotification();    
 
-        console.log(response)
         res.json(response)
 
     } catch (error) {

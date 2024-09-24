@@ -1,6 +1,7 @@
 require('dotenv').config({ path: '../.env' });
 const postmark = require("postmark");
 const { getJobPostings } = require('./jobProcessor');
+const pool = require('../db');
 
 const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
@@ -19,17 +20,30 @@ async function sendEmail(toEmail, subject, message) {
     }
 }
 
+async function getEmailSubscribers() {
+    try {
+        const result = await pool.query('SELECT * FROM email_subscribers');
+        return result.rows;
+    } catch (error) {
+        console.error('Error retrieving emails:', error);
+    }
+}
+
 async function notifyJobPostings(jobs) {
     try {
-        const email = process.env.TEST_EMAIL;
-        const subject = 'New Teacher Job Postings';
-        const message = await formatMessageForEmail(jobs);
+        const emailSubscribers = await getEmailSubscribers();
+
+        for (const subscriber of emailSubscribers) {
+            const email = subscriber.email
+            const subject = 'New Teacher Job Postings';
+            const message = await formatMessageForEmail(jobs);
     
-        try {
-            await sendEmail(email, subject, message);
-        } catch (error) {
-            console.error(error)
-        }
+            try {
+                await sendEmail(email, subject, message);
+            } catch (error) {
+                console.error(error)
+            }
+        };
     } catch (error) {
         console.error('Error notifying all job postings');
     }

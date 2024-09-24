@@ -4,6 +4,7 @@ async function getJobPostings() {
   try {
     const jobs = await pool.query('SELECT * FROM jobs');
     return jobs.rows;
+
   } catch (error) {
     console.error('Error fetching job postings:', error);
   }
@@ -86,6 +87,7 @@ async function addJob(job) {
         );
         console.log('Job did not exist in DB, added to DB');
       }
+      
     } catch (error) {
       console.error('Error processing job:', error);
     }
