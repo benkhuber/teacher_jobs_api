@@ -10,7 +10,7 @@ async function sendEmail(toEmail, subject, message) {
           "From": "benjamin.huber@colorado.edu",
           "To": toEmail,
           "Subject": subject,
-          "TextBody": message
+          "HtmlBody": message
         });
     
         console.log("Email sent successfully:", result);
@@ -44,15 +44,19 @@ async function notifyAllJobsPostings() {
 
 async function formatMessageForEmail(jobs) {
     let message = '<h1>All Current Job Postings:</h1><br/><ul>';
+    let count = 1;
 
     jobs.forEach(job => {
         message += `<li>
+            <strong>Number:</strong> ${count}<br/>
             <strong>Position:</strong> ${job.position_title}<br/>
             <strong>City Name:</strong> ${job.city_name}<br/>
             <strong>District Name:</strong> ${job.district_name}<br/>
             <strong>Job Type:</strong> ${job.job_type}<br/>
             <a href="https://edjoin.org/Home/JobPosting/${job.position_id}" target="_blank">Go To Job Posting</a>
         </li><br/><br/>`
+
+        count++;
     })
 
     message += '</ul>';
