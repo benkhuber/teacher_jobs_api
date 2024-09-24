@@ -5,8 +5,8 @@ const axios = require('axios');
 const app = express()
 const port = process.env.PORT
 const pool = require('./db');
-const { addJob, deleteJob } = require('./utils/jobProcessor')
-const sendEmail = require('./utils/emailNotification')
+const { getJobPostings, addJob, deleteJob } = require('./utils/jobProcessor')
+const { notifyAllJobsPostings } = require('./utils/emailNotification')
 
 app.get('/health', (req, res) => {
   res.send('OK')
@@ -14,11 +14,11 @@ app.get('/health', (req, res) => {
 
 app.get('/api/jobs', async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM jobs');
-        res.json(response.rows);
+        const jobs = await getJobPostings();
+        res.json(jobs);
     } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).send('Server error');
+        console.error('Error fetching jobs', error);
+        res.status(500).send('server error');
     }
 })
 
@@ -134,7 +134,18 @@ app.get('/api/add_test_job_posting', async (req, res) => {
     }
 })
 
-app.get('/api/notify', async (req, res) => {
+app.get('/api/notify_all_jobs', async (req, res) => {
+    try {
+        const response = await notifyAllJobsPostings();
+        res.send(`sending notification`)
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
+    }
+})
+
+app.get('/api/test_notify', async (req, res) => {
     const email = process.env.TEST_EMAIL;
     console.log(email)
     const subject = 'New Teacher Job Postings'

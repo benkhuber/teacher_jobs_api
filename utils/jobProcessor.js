@@ -1,5 +1,16 @@
 const pool = require('../db')
 
+async function getJobPostings() {
+  try {
+    const result = await pool.query('SELECT * FROM jobs');
+
+    console.log(result.length)
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching job postings:', error);
+  }
+}
+
 async function addJob(job) {
     const rawPostingDate = parseInt(job['postingDate'].replace('/Date(', '').replace(')/', '')) / 1000;
     const rawExpirationDate = parseInt(job['displayUntil'].replace('/Date(', '').replace(')/', '')) / 1000;
@@ -62,6 +73,7 @@ async function deleteJob(job) {
 }
   
   module.exports = {
+    getJobPostings,
     addJob,
     deleteJob
   };
