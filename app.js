@@ -6,6 +6,7 @@ const app = express()
 const port = process.env.PORT
 const pool = require('./db');
 const { addJob, deleteJob } = require('./utils/jobProcessor')
+const sendEmail = require('./utils/emailNotification')
 
 app.get('/health', (req, res) => {
   res.send('OK')
@@ -130,6 +131,21 @@ app.get('/api/add_test_job_posting', async (req, res) => {
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Server error');
+    }
+})
+
+app.get('/api/notify', async (req, res) => {
+    const email = process.env.TEST_EMAIL;
+    console.log(email)
+    const subject = 'New Teacher Job Postings'
+    const message = 'This is a test of new teacher job postings automated email service'
+
+    try {
+        await sendEmail(email, subject, message);
+
+        res.status(200).json({ message: 'Email sent successfully!' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to send email' });
     }
 })
 
