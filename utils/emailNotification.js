@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const postmark = require("postmark");
 const { getJobPostings } = require('./jobProcessor');
 
@@ -16,6 +16,22 @@ async function sendEmail(toEmail, subject, message) {
         console.log("Email sent successfully:", result);
     } catch (error) {
         console.error("Error sending email:", error);
+    }
+}
+
+async function notifyJobPostings(jobs) {
+    try {
+        const email = process.env.TEST_EMAIL;
+        const subject = 'New Teacher Job Postings';
+        const message = await formatMessageForEmail(jobs);
+    
+        try {
+            await sendEmail(email, subject, message);
+        } catch (error) {
+            console.error(error)
+        }
+    } catch (error) {
+        console.error('Error notifying all job postings');
     }
 }
 
@@ -64,4 +80,4 @@ async function formatMessageForEmail(jobs) {
     return message;
 }
 
-module.exports = { sendEmail, notifyAllJobsPostings };
+module.exports = { sendEmail, notifyJobPostings, notifyAllJobsPostings };

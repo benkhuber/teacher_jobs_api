@@ -5,7 +5,10 @@ const axios = require('axios');
 const app = express()
 const port = process.env.PORT
 const pool = require('./db');
-const { getJobPostings, addJob, deleteJob } = require('./utils/jobProcessor')
+const { getJobPostings, 
+        getJobPostingsPendingNotification, 
+        addJob, 
+        deleteJob } = require('./utils/jobProcessor')
 const { notifyAllJobsPostings } = require('./utils/emailNotification')
 
 app.get('/health', (req, res) => {
@@ -87,10 +90,10 @@ app.get('/api/clear_expired_jobs', async (req, res) => {
 
 app.get('/api/jobs_pending_notification', async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM jobs WHERE notification_sent=false')
+        const response = await getJobPostingsPendingNotification();    
 
         console.log(response)
-        res.json(response.rows)
+        res.json(response)
 
     } catch (error) {
         console.error(`Error notifying jobs`, error);

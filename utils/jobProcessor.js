@@ -2,12 +2,39 @@ const pool = require('../db')
 
 async function getJobPostings() {
   try {
-    const result = await pool.query('SELECT * FROM jobs');
-
-    console.log(result.length)
-    return result.rows;
+    const jobs = await pool.query('SELECT * FROM jobs');
+    return jobs.rows;
   } catch (error) {
     console.error('Error fetching job postings:', error);
+  }
+}
+
+async function getJobPostingsPendingNotification() {
+  try {
+    const jobs = await pool.query('SELECT * FROM jobs WHERE notification_sent=false')
+    return jobs.rows;
+
+  } catch (error) {
+    console.error('Error fetching jobs pending notification', error);
+  }
+}
+
+async function updateJobNotificationStatus(jobs) {
+  try {
+    const updatePromises = jobs.map(async (job) => {
+      await pool.query(
+        `UPDATE jobs 
+         SET notification_sent = true 
+         WHERE position_id = $1`,
+        [job.position_id]
+      );
+    })
+
+    await Promise.all(updatePromises);
+    console.log("all jobs updated successfully");
+
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -74,6 +101,8 @@ async function deleteJob(job) {
   
   module.exports = {
     getJobPostings,
+    getJobPostingsPendingNotification,
+    updateJobNotificationStatus,
     addJob,
     deleteJob
   };
