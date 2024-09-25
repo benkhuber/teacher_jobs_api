@@ -1,4 +1,3 @@
-const cron = require('node-cron');
 const { getJobPostingsPendingNotification, updateJobNotificationStatus } = require('./jobProcessor');
 const { notifyJobPostings } = require('./emailNotification')
 require('dotenv').config({ path: '../.env' });
@@ -21,7 +20,4 @@ async function fetchNewJobs() {
     }
 }
 
-cron.schedule('0 * * * *', async () => {
-    console.log("Running scheduled job fetch");
-    await fetchNewJobs();
-})
+module.exports = fetchNewJobs;

@@ -2,15 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
+const cron = require('node-cron');
 
-const app = express()
-const port = process.env.PORT
+const app = express();
+const port = process.env.PORT;
 const pool = require('./db');
 const { getJobPostings, 
         getJobPostingsPendingNotification, 
         addJob, 
-        deleteJob } = require('./utils/jobProcessor')
-const { notifyAllJobsPostings } = require('./utils/emailNotification')
+        deleteJob } = require('./utils/jobProcessor');
+const { notifyAllJobsPostings } = require('./utils/emailNotification');
+const fetchNewJobs = require('./utils/notifyScript');
 
 app.use(bodyParser.json());
 app.use(express.static('public')); 
@@ -189,4 +191,9 @@ app.get('/api/test_notify', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
+})
+
+cron.schedule('* * * * *', async () => {
+    console.log("Running scheduled job fetch");
+    await fetchNewJobs();
 })
