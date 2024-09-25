@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Jobs</title>
     <style>
-        /* Simple grid for displaying job cards */
         .job-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 columns */
-            gap: 20px; /* Space between cards */
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
             padding: 20px;
         }
 
@@ -19,8 +18,8 @@
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             transition: box-shadow 0.3s;
-            text-decoration: none; /* Remove underline from links */
-            color: inherit; /* Make link inherit the card’s text color */
+            text-decoration: none;
+            color: inherit;
         }
 
         .job-card:hover {
@@ -38,43 +37,36 @@
     </style>
 </head>
 <body>
-    <h1>All Job Listings</h1>
+    <h1>All Elementary Teacher Job Listings for Orange County, CA</h1>
 
-    <!-- Container for job cards -->
-    <div class="job-grid" id="jobGrid">
-        <!-- Job cards will be inserted here -->
-    </div>
+    <div class="job-grid" id="jobGrid"></div>
 
     <script>
-        // Function to fetch jobs from the API and render them as clickable cards
         async function fetchJobs() {
             try {
                 const response = await fetch('/api/jobs');
                 const jobs = await response.json();
 
-                // Get the job grid container
                 const jobGrid = document.getElementById('jobGrid');
 
-                // Clear the grid (in case it's already populated)
                 jobGrid.innerHTML = '';
 
-                // Loop through the jobs and create cards
                 jobs.forEach(job => {
-                    const jobCard = document.createElement('a');  // Make the job card an anchor
+                    const jobCard = document.createElement('a');
                     jobCard.classList.add('job-card');
-                    jobCard.href = `https://www.edjoin.org/Home/JobPosting/${job.position_id}`;  // Link to EdJoin job posting
-                    jobCard.target = '_blank';  // Open the link in a new tab
+                    jobCard.href = `https://www.edjoin.org/Home/JobPosting/${job.position_id}`; 
+                    jobCard.target = '_blank'; 
 
                     jobCard.innerHTML = `
                         <div class="job-title">${job.position_title}</div>
                         <div class="job-details">
-                            <p><strong>Location:</strong> ${job.city_name}, ${job.full_county_name}</p>
-                            <p><strong>Salary:</strong> ${job.salary_info || 'Not provided'}</p>
+                            <p><strong>City Name:</strong> ${job.city_name || 'Not provided'}</p>
+                            <p><strong>District:</strong> ${job.district_name || 'Not provided'}</p>
                             <p><strong>Posted on:</strong> ${new Date(job.posting_date).toLocaleDateString()}</p>
+                            <p><strong>Expiration Date:</strong> ${new Date(job.expiration_date).toLocaleDateString()}</p>
                         </div>
                     `;
 
-                    // Append the card to the job grid
                     jobGrid.appendChild(jobCard);
                 });
             } catch (error) {
@@ -82,7 +74,6 @@
             }
         }
 
-        // Fetch and display jobs when the page loads
         window.onload = fetchJobs;
     </script>
 </body>

@@ -55,7 +55,7 @@ async function notifyAllJobsPostings() {
 
         if (jobs.length > 0) {
             const email = process.env.TEST_EMAIL;
-            const subject = 'New Teacher Job Postings';
+            const subject = '[ Alert ] New Elementary Teacher Job Posting(s)';
             const message = await formatMessageForEmail(jobs);
         
             try {
@@ -73,7 +73,7 @@ async function notifyAllJobsPostings() {
 }
 
 async function formatMessageForEmail(jobs) {
-    let message = '<h1>All Current Job Postings:</h1><br/><ul>';
+    let message = '<h1>New Job(s) Posting(s):</h1><br/><ul>';
     let count = 1;
 
     jobs.forEach(job => {

@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const cron = require('node-cron');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT;
@@ -20,6 +21,14 @@ app.use(express.static('public'));
 app.get('/health', (req, res) => {
   res.send('OK')
 })
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/alljobs', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'alljobs.html'));
+});
 
 app.get('/api/jobs', async (req, res) => {
     try {
