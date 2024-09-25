@@ -202,7 +202,7 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-cron.schedule('*/30 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     console.log("Running scheduled job fetch");
     await fetchNewJobs();
 })
