@@ -20,8 +20,13 @@ async function fetchNewJobs() {
     
         if (jobsExist) {
             console.log("Jobs exist");
-            notifyJobPostings(jobs);
+
+            if (process.env.NODE_ENV == 'production') {
+                notifyJobPostings(jobs);
+            }
+
             updateJobNotificationStatus(jobs);
+            
         } else {
             console.log("No jobs exist");
         }

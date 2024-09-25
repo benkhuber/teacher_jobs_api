@@ -62,9 +62,7 @@ async function addJob(job) {
       const jobExists = await pool.query('SELECT 1 FROM jobs WHERE position_id = $1', [position_id]);
       const notificationSent = false
 
-      if (jobExists.rows.length > 0) {
-        console.log('Job posting exists in DB');
-      } else {
+      if (!jobExists.rows.length > 0) {
         await pool.query(
           `INSERT INTO jobs 
             (position_id, position_title, salary_info, posting_date, expiration_date, full_county_name, city_name, district_name, job_type_id, job_type, fulltime_parttime, notification_sent)
