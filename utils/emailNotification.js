@@ -74,11 +74,9 @@ async function notifyAllJobsPostings() {
 
 async function formatMessageForEmail(jobs) {
     let message = '<h1>New Job(s) Posting(s):</h1><br/><ul>';
-    let count = 1;
 
     jobs.forEach(job => {
         message += `<li>
-            <strong>Number:</strong> ${count}<br/>
             <strong>Position:</strong> ${job.position_title}<br/>
             <strong>City Name:</strong> ${job.city_name}<br/>
             <strong>District Name:</strong> ${job.district_name}<br/>
