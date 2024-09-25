@@ -3,87 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Jobs</title>
-    <style>
-        /* Simple grid for displaying job cards */
-        .job-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 columns */
-            gap: 20px; /* Space between cards */
-            padding: 20px;
-        }
-
-        .job-card {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: box-shadow 0.3s;
-            text-decoration: none; /* Remove underline from links */
-            color: inherit; /* Make link inherit the card’s text color */
-        }
-
-        .job-card:hover {
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-
-        .job-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .job-details {
-            margin-top: 10px;
-        }
-    </style>
+    <title>Email Subscription</title>
 </head>
 <body>
-    <h1>All Job Listings</h1>
-
-    <!-- Container for job cards -->
-    <div class="job-grid" id="jobGrid">
-        <!-- Job cards will be inserted here -->
-    </div>
+    <header>
+        <h1>Subscribe to Teacher Job Notifications</h1>
+    </header>
+    <form id="emailForm">
+        <label for="email">Email Address:</label>
+        <input type="email" id="email" name="email" required>
+        <button type="submit">Subscribe</button>
+    </form>
+    <p id="message"></p>
+    <a href="/alljobs">See All Current Jobs</a>
 
     <script>
-        // Function to fetch jobs from the API and render them as clickable cards
-        async function fetchJobs() {
+        document.getElementById('emailForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+
             try {
-                const response = await fetch('/api/jobs');
-                const jobs = await response.json();
-
-                // Get the job grid container
-                const jobGrid = document.getElementById('jobGrid');
-
-                // Clear the grid (in case it's already populated)
-                jobGrid.innerHTML = '';
-
-                // Loop through the jobs and create cards
-                jobs.forEach(job => {
-                    const jobCard = document.createElement('a');  // Make the job card an anchor
-                    jobCard.classList.add('job-card');
-                    jobCard.href = `https://www.edjoin.org/Home/JobPosting/${job.position_id}`;  // Link to EdJoin job posting
-                    jobCard.target = '_blank';  // Open the link in a new tab
-
-                    jobCard.innerHTML = `
-                        <div class="job-title">${job.position_title}</div>
-                        <div class="job-details">
-                            <p><strong>Location:</strong> ${job.city_name}, ${job.full_county_name}</p>
-                            <p><strong>Salary:</strong> ${job.salary_info || 'Not provided'}</p>
-                            <p><strong>Posted on:</strong> ${new Date(job.posting_date).toLocaleDateString()}</p>
-                        </div>
-                    `;
-
-                    // Append the card to the job grid
-                    jobGrid.appendChild(jobCard);
+                const response = await fetch('/api/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
                 });
-            } catch (error) {
-                console.error('Error fetching jobs:', error);
-            }
-        }
 
-        // Fetch and display jobs when the page loads
-        window.onload = fetchJobs;
+                const result = await response.json();
+                document.getElementById('message').textContent = result.message;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('message').textContent = 'An error occurred. Please try again.';
+            }
+        });
     </script>
 </body>
 </html>

@@ -16,7 +16,7 @@ const { notifyAllJobsPostings } = require('./utils/emailNotification');
 const fetchNewJobs = require('./utils/notifyScript');
 
 app.use(bodyParser.json());
-app.use(express.static('public')); 
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/health', (req, res) => {
   res.send('OK')
