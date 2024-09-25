@@ -6,7 +6,8 @@ const axios = require('axios');
 async function fetchNewJobs() {
     try {
         const url = process.env.SERVER_URL
-        const apiResponse = await axios.get(`${url}/api/jobs`);
+        const apiResponse = await axios.get(`${url}/api/fetch_jobs`);
+
 
         if (apiResponse.status === 200) {
             console.log('Successfully fetched');
