@@ -35,7 +35,7 @@ async function notifyJobPostings(jobs) {
 
         for (const subscriber of emailSubscribers) {
             const email = subscriber.email
-            const subject = 'New Teacher Job Postings';
+            const subject = await formatSubjectForEmail(jobs);
             const message = await formatMessageForEmail(jobs);
     
             try {
