@@ -55,7 +55,7 @@ async function notifyAllJobsPostings() {
 
         if (jobs.length > 0) {
             const email = process.env.TEST_EMAIL;
-            const subject = '[ Alert ] New Elementary Teacher Job Posting(s)';
+            const subject = await formatSubjectForEmail(jobs);
             const message = await formatMessageForEmail(jobs);
         
             try {
@@ -70,6 +70,16 @@ async function notifyAllJobsPostings() {
     } catch (error) {
         console.error('Error notifying all job postings');
     }
+}
+
+async function formatSubjectForEmail(jobs) {
+    let subject = '[ Alert ] New Elementary Teacher Job Posting'
+
+    if (jobs.length > 1) {
+        subject = '[ Alert ] New Elementary Teacher Job Postings'
+    }
+
+    return subject
 }
 
 async function formatMessageForEmail(jobs) {
