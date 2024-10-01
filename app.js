@@ -10,9 +10,11 @@ const port = process.env.PORT;
 const pool = require('./db');
 const { getJobPostings, 
         getJobPostingsPendingNotification, 
+        updateJobNotificationStatus,
         addJob, 
         deleteJob } = require('./utils/jobProcessor');
-const { notifyAllJobsPostings } = require('./utils/emailNotification');
+const { notifyJobPostings, 
+        notifyAllJobsPostings } = require('./utils/emailNotification');
 const fetchNewJobs = require('./utils/notifyScript');
 
 app.use(bodyParser.json());
@@ -182,17 +184,22 @@ app.get('/api/notify_all_jobs', async (req, res) => {
 })
 
 app.get('/api/test_notify', async (req, res) => {
-    const email = process.env.TEST_EMAIL;
-    console.log(email)
-    const subject = 'New Teacher Job Postings'
-    const message = 'This is a test of new teacher job postings automated email service'
-
     try {
-        await sendEmail(email, subject, message);
+        const jobs = await getJobPostingsPendingNotification();
+        const jobsExist = jobs.length > 0
+    
+        if (jobsExist) {
+            console.log("Jobs exist");
+                
+            notifyJobPostings(jobs);
+            updateJobNotificationStatus(jobs);
+            
+        } else {
+            console.log("No jobs exist");
+        }
 
-        res.status(200).json({ message: 'Email sent successfully!' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to send email' });
+        console.error('Error fetching new jobs', error);
     }
 })
 
@@ -200,7 +207,7 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
 
-cron.schedule('*/30 * * * 1-6', async () => {
+cron.schedule('*/30 * * * *', async () => {
     console.log("Running scheduled job fetch");
     await fetchNewJobs();
 })

@@ -24,7 +24,7 @@ async function fetchNewJobs() {
             if (process.env.NODE_ENV == 'production') {
                 notifyJobPostings(jobs);
             }
-
+            
             updateJobNotificationStatus(jobs);
             
         } else {

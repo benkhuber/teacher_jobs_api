@@ -73,31 +73,106 @@ async function notifyAllJobsPostings() {
 }
 
 async function formatSubjectForEmail(jobs) {
-    let subject = '[ Alert ] New Elementary Teacher Job Posting'
+    let subject = '[Job Alert] New Elementary Teacher Job Posting'
 
     if (jobs.length > 1) {
-        subject = '[ Alert ] New Elementary Teacher Job Postings'
+        subject = '[Job Alert] New Elementary Teacher Job Postings'
     }
 
     return subject
 }
 
 async function formatMessageForEmail(jobs) {
-    let message = '<h1>New Job(s) Posting(s):</h1><br/><ul>';
+    let message = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>New Job Posting(s)</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f4f4f4;
+                }
+                .container {
+                    width: 80%;
+                    margin: 20px auto;
+                    background: #ffffff;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                }
+                h1 {
+                    text-align: center;
+                    color: #333333;
+                    font-size: 24px;
+                }
+                ul {
+                    list-style-type: none;
+                    padding: 0;
+                }
+                li {
+                    background: #f9f9f9;
+                    border: 1px solid #dddddd;
+                    border-radius: 8px;
+                    padding: 15px;
+                    margin-bottom: 10px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                }
+                li strong {
+                    display: inline-block;
+                    width: 120px;
+                    color: #555555;
+                }
+                .button {
+                    display: inline-block;
+                    margin-top: 15px;
+                    padding: 10px 20px;
+                    background-color: #1d72b8;
+                    color: #ffffff;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    transition: background-color 0.3s ease;
+                }
+                .button:hover {
+                    background-color: #155a8c;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>New Job Posting`;
+
+    if (jobs.length > 1) {
+        message += `s`
+    };
+        
+    message += `:</h1><ul>`;
 
     jobs.forEach(job => {
-        message += `<li>
-            <strong>Position:</strong> ${job.position_title}<br/>
-            <strong>City Name:</strong> ${job.city_name}<br/>
-            <strong>District Name:</strong> ${job.district_name}<br/>
-            <strong>Job Type:</strong> ${job.job_type}<br/>
-            <a href="https://edjoin.org/Home/JobPosting/${job.position_id}" target="_blank">Go To Job Posting</a>
-        </li><br/><br/>`
+        message += `
+            <li>
+                <strong>Position:</strong> ${job.position_title}<br/>
+                <strong>City Name:</strong> ${job.city_name}<br/>
+                <strong>District Name:</strong> ${job.district_name}<br/>
+                <strong>Job Type:</strong> ${job.job_type}<br/>
+                <a href="https://edjoin.org/Home/JobPosting/${job.position_id}" target="_blank" class="button">Go To Job Posting</a>
+            </li>
+        `
+    });
 
-        count++;
-    })
-
-    message += '</ul>';
+    message += `
+                </ul>
+            </div>
+        </body>
+        </html>
+    `;
 
     return message;
 }
