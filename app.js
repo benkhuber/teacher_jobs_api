@@ -18,19 +18,11 @@ const { notifyJobPostings,
 const fetchNewJobs = require('./utils/notifyScript');
 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
 app.get('/health', (req, res) => {
   res.send('OK')
 })
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/alljobs', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'alljobs.html'));
-});
 
 app.get('/api/jobs', async (req, res) => {
     try {
@@ -202,6 +194,10 @@ app.get('/api/test_notify', async (req, res) => {
         console.error('Error fetching new jobs', error);
     }
 })
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+  });
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
