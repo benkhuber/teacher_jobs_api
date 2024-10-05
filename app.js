@@ -76,7 +76,7 @@ app.get('/api/fetch_jobs', async (req, res) => {
 })
 
 app.get('/api/clear_all_jobs', async (req, res) => {
-    const url = process.env.SERVER_URL
+    const url = process.env.VITE_SERVER_URL
     try {
         const response = await axios.get(`${url}/api/jobs`);
 

@@ -5,7 +5,7 @@ const axios = require('axios');
 
 async function fetchNewJobs() {
     try {
-        const url = process.env.SERVER_URL
+        const url = process.env.VITE_SERVER_URL
         const apiResponse = await axios.get(`${url}/api/fetch_jobs`);
 
 
@@ -24,7 +24,7 @@ async function fetchNewJobs() {
             if (process.env.NODE_ENV == 'production') {
                 notifyJobPostings(jobs);
             }
-            
+
             updateJobNotificationStatus(jobs);
             
         } else {
