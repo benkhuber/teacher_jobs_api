@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import NavBar from '../components/NavBar';
 
 function Home() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ function Home() {
 
   return (
     <div>
+      <NavBar />
       <header>
         <h1>Subscribe to Teacher Job Notifications</h1>
       </header>
@@ -44,7 +46,6 @@ function Home() {
         <button type="submit">Subscribe</button>
       </form>
       <p id="message">{message}</p>
-      <a href="/alljobs">See All Current Jobs</a>
     </div>
   );
 }

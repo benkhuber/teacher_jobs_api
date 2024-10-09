@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import NavBar from '../components/NavBar';
 
 const AllJobs = () => {
   const [jobs, setJobs] = useState([]);
@@ -7,9 +8,7 @@ const AllJobs = () => {
     try {
       const response = await fetch('/api/jobs');
       console.log(response)
-      // Check if the response is ok (status in the range 200-299)
       if (!response.ok) {
-        // If not, throw an error with the status
         throw new Error(`HTTP error! status: ${response.status}`);
       }
   
@@ -27,6 +26,7 @@ const AllJobs = () => {
 
   return (
     <div>
+      <NavBar />
       <h1>All Elementary Teacher Job Listings for Orange County, CA</h1>
       <div className="job-grid">
         {jobs.map((job) => (
