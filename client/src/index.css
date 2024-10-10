@@ -1,4 +1,4 @@
-:root {
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -25,8 +25,10 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: start;
-  min-width: 320px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 500px;
   min-height: 100vh;
 }
 
@@ -42,7 +44,7 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #7d80a6;
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -67,8 +69,35 @@ button:focus-visible {
   }
 }
 
-/* src/pages/AllJobs.css */
+*/
 
+
+
+/* General CSS */ 
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+body {
+  border: solid 2px blue;
+  width: 100%; /* Full width */
+  box-sizing: border-box;
+}
+
+
+/* All Jobs Page */
 .job-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -99,9 +128,37 @@ button:focus-visible {
   margin-top: 10px;
 }
 
+
+/* NavBar */
 .navBar {
-  border: solid red 2px;
   display: flex;
-  flex-direction: row;
+  border-bottom: 4px solid black;
   justify-content: space-between;
+  align-items: center;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.navBarHome {
+  text-decoration: none;
+  padding: 1rem;
+  font-size: 3em;
+  color: black;
+}
+
+.navBarLinksContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.navBarLinks {
+  background-color: black;
+  color: white;
+  text-decoration: none;
+  padding: 1em;
+  border-radius: 4px;
+}
+
+.navBarLinks:hover {
+  background-color: rgb(179, 128, 244);
 }

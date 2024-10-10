@@ -27,7 +27,7 @@ const AllJobs = () => {
   return (
     <div>
       <NavBar />
-      <h1>All Elementary Teacher Job Listings for Orange County, CA</h1>
+      <h2>All Elementary Teacher Job Listings for Orange County, CA</h2>
       <div className="job-grid">
         {jobs.map((job) => (
           <a

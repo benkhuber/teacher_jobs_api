@@ -30,22 +30,21 @@ function Home() {
   return (
     <div>
       <NavBar />
-      <header>
-        <h1>Subscribe to Teacher Job Notifications</h1>
-      </header>
-      <form id="emailForm" onSubmit={handleSubmit}>
-        <label htmlFor="email">Email Address:</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)} // Update email state when input changes
-          required
-        />
-        <button type="submit">Subscribe</button>
-      </form>
-      <p id="message">{message}</p>
+      <div>
+        <form id="emailForm" onSubmit={handleSubmit}>
+          <label htmlFor="email">Email Address:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)} // Update email state when input changes
+            required
+          />
+          <button type="submit">Subscribe</button>
+        </form>
+        <p id="message">{message}</p>
+      </div>
     </div>
   );
 }
