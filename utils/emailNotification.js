@@ -1,6 +1,6 @@
 require('dotenv').config({ path: '../.env' });
 const postmark = require("postmark");
-const { getJobPostings } = require('./jobProcessor');
+const JobPosting = require('../classes/JobPosting')
 const pool = require('../db');
 
 const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
@@ -51,7 +51,7 @@ async function notifyJobPostings(jobs) {
 
 async function notifyAllJobsPostings() {
     try {
-        const jobs = await getJobPostings();
+        const jobs = await JobPosting.getAllJobPostingsInDb();
 
         if (jobs.length > 0) {
             const email = process.env.TEST_EMAIL;

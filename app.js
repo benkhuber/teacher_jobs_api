@@ -8,14 +8,12 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT;
 const pool = require('./db');
-const { getJobPostings, 
-        getJobPostingsPendingNotification, 
-        updateJobNotificationStatus,
-        addJob, 
+const { updateJobNotificationStatus,
         deleteJob } = require('./utils/jobProcessor');
 const { notifyJobPostings, 
         notifyAllJobsPostings } = require('./utils/emailNotification');
 const fetchNewJobs = require('./utils/notifyScript');
+const JobPosting = require('./classes/JobPosting');
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
@@ -26,8 +24,8 @@ app.get('/health', (req, res) => {
 
 app.get('/api/jobs', async (req, res) => {
     try {
-        const jobs = await getJobPostings();
-        res.json(jobs);
+        const allJobsInDb = await JobPosting.getAllJobPostingsInDb();
+        res.json(allJobsInDb);
     } catch (error) {
         console.error('Error fetching jobs', error);
         res.status(500).send('server error');
@@ -53,16 +51,36 @@ app.post('/api/subscribe', async (req, res) => {
     }
 })
 
+app.get('/api/test_job_posting_class', async (req, res) => {
+    const url = process.env.API_URL;
+    try {
+        const response = await axios.get(url);
+        
+        if (response.status === 200) {
+            const jobData = response.data.data
+
+            for (const job of jobData) {
+                const newJob = new JobPosting(job);
+                newJob.addJobToDb();
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        res.status(500).send('Server error');
+    }
+})
+
 app.get('/api/fetch_jobs', async (req, res) => {
     const url = process.env.API_URL;
     try {
         const response = await axios.get(url);
 
         if (response.status === 200) {
-            const jobs = response.data.data;
+            const jobData = response.data.data;
 
-            for (const job of jobs) {
-                addJob(job)
+            for (const job of jobData) {
+                const newJobPosting = new JobPosting(job);
+                newJobPosting.addJobToDb();
             }
             res.send(`Status: ${response.status}, collecting jobs...`);
         } else {
@@ -84,6 +102,7 @@ app.get('/api/clear_all_jobs', async (req, res) => {
             const jobs = response.data
 
             for (const job of jobs) {
+                jobPendingDeletion
                 deleteJob(job)
             }
         }
@@ -118,7 +137,7 @@ app.get('/api/clear_expired_jobs', async (req, res) => {
 
 app.get('/api/jobs_pending_notification', async (req, res) => {
     try {
-        const response = await getJobPostingsPendingNotification();    
+        const response = await JobPosting.getJobPostingsPendingNotification();    
 
         res.json(response)
 
@@ -151,7 +170,8 @@ app.get('/api/add_test_job_posting', async (req, res) => {
             jobs[0]['displayUntil'] = '/Date(1695055800000)/'
             jobs[0]['postingID'] = 9999999
 
-            addJob(jobs[0]);
+            newJobPosting = new JobPosting(jobs[0]);
+            newJobPosting.addJobToDb();
 
             res.send(`Status: ${response.status}, collecting jobs...`);
         } else {
@@ -177,14 +197,17 @@ app.get('/api/notify_all_jobs', async (req, res) => {
 
 app.get('/api/test_notify', async (req, res) => {
     try {
-        const jobs = await getJobPostingsPendingNotification();
+        const jobs = await JobPosting.getJobPostingsPendingNotification();
         const jobsExist = jobs.length > 0
     
+        console.log(jobs)
+        console.log(jobsExist);
+
         if (jobsExist) {
             console.log("Jobs exist");
                 
             notifyJobPostings(jobs);
-            updateJobNotificationStatus(jobs);
+            JobPosting.updateJobNotificationStatus();
             
         } else {
             console.log("No jobs exist");

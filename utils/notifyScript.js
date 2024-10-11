@@ -1,6 +1,7 @@
-const { getJobPostingsPendingNotification, updateJobNotificationStatus } = require('./jobProcessor');
+const { updateJobNotificationStatus } = require('./jobProcessor');
 const { notifyJobPostings } = require('./emailNotification')
 require('dotenv').config({ path: '../.env' });
+const JobPosting = require('../classes/JobPosting')
 const axios = require('axios');
 
 async function fetchNewJobs() {
@@ -15,7 +16,7 @@ async function fetchNewJobs() {
             console.error('Failed to fetch or add new jobs:', apiResponse.status);
         }
 
-        const jobs = await getJobPostingsPendingNotification();
+        const jobs = await JobPosting.getJobPostingsPendingNotification();
         const jobsExist = jobs.length > 0
     
         if (jobsExist) {
@@ -25,7 +26,7 @@ async function fetchNewJobs() {
                 notifyJobPostings(jobs);
             }
 
-            updateJobNotificationStatus(jobs);
+            JobPosting.updateJobNotificationStatus();
             
         } else {
             console.log("No jobs exist");
