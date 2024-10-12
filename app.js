@@ -8,8 +8,7 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT;
 const pool = require('./db');
-const { updateJobNotificationStatus,
-        deleteJob } = require('./utils/jobProcessor');
+
 const { notifyJobPostings, 
         notifyAllJobsPostings } = require('./utils/emailNotification');
 const fetchNewJobs = require('./utils/notifyScript');
@@ -80,6 +79,7 @@ app.get('/api/fetch_jobs', async (req, res) => {
 
             for (const job of jobData) {
                 const newJobPosting = new JobPosting(job);
+
                 newJobPosting.addJobToDb();
             }
             res.send(`Status: ${response.status}, collecting jobs...`);
@@ -102,8 +102,9 @@ app.get('/api/clear_all_jobs', async (req, res) => {
             const jobs = response.data
 
             for (const job of jobs) {
-                jobPendingDeletion
-                deleteJob(job)
+                jobPendingDeletion = new JobPosting(job)
+                jobPendingDeletion.deleteJobFromDb()
+
             }
         }
         res.send(`Status: ${response.status}, clearing jobs...`);
@@ -116,13 +117,14 @@ app.get('/api/clear_all_jobs', async (req, res) => {
 
 app.get('/api/clear_expired_jobs', async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM jobs WHERE expiration_date < NOW()')
+        const response = await pool.query('SELECT * FROM jobs WHERE expirationdate < NOW()')
 
         if (response.rows[0] != undefined) {
             const jobs = response.rows
 
             for (const job of jobs) {
-                deleteJob(job)
+                const jobPendingDeletion = new JobPosting(job)
+                jobPendingDeletion.deleteJobFromDb();
             }
             res.send(`Status: ${response.status}, deleting expired jobs.`);
         } else {
@@ -149,7 +151,7 @@ app.get('/api/jobs_pending_notification', async (req, res) => {
 
 app.get('/api/update_notification_status', async (req, res) => {
     try {
-        await pool.query('UPDATE jobs SET notification_sent=true WHERE notification_sent=false');
+        const response = await JobPosting.updateJobNotificationStatus();
 
         res.send('Notification status updated');
 
@@ -168,7 +170,7 @@ app.get('/api/add_test_job_posting', async (req, res) => {
             const jobs = response.data.data;
 
             jobs[0]['displayUntil'] = '/Date(1695055800000)/'
-            jobs[0]['postingID'] = 9999999
+            jobs[0]['positionID'] = 9999999
 
             newJobPosting = new JobPosting(jobs[0]);
             newJobPosting.addJobToDb();

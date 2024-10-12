@@ -31,18 +31,18 @@ const AllJobs = () => {
       <div className="job-grid">
         {jobs.map((job) => (
           <a
-            key={job.position_id}
+            key={job.positionid}
             className="job-card"
-            href={`https://www.edjoin.org/Home/JobPosting/${job.position_id}`}
+            href={`https://www.edjoin.org/Home/JobPosting/${job.positionid}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <div className="job-title">{job.position_title}</div>
+            <div className="job-title">{job.positiontitle}</div>
             <div className="job-details">
-              <p><strong>City Name:</strong> {job.city_name || 'Not provided'}</p>
-              <p><strong>District:</strong> {job.district_name || 'Not provided'}</p>
-              <p><strong>Posted on:</strong> {new Date(job.posting_date).toLocaleDateString()}</p>
-              <p><strong>Expiration Date:</strong> {new Date(job.expiration_date).toLocaleDateString()}</p>
+              <p><strong>City Name:</strong> {job.cityname || 'Not provided'}</p>
+              <p><strong>District:</strong> {job.districtname || 'Not provided'}</p>
+              <p><strong>Posted on:</strong> {new Date(job.postingdate).toLocaleDateString()}</p>
+              <p><strong>Expiration Date:</strong> {new Date(job.expirationdate).toLocaleDateString()}</p>
             </div>
           </a>
         ))}

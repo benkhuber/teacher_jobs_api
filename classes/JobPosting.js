@@ -2,18 +2,37 @@ const pool = require('../db');
 
 class JobPosting {
     constructor(jobData) {
-        this.postingID = jobData.postingID
-        this.positionTitle = jobData.positionTitle
-        this.salaryInfo = jobData.salaryInfo
-        this.postingDate = this.parseJobDate(jobData.postingDate)
-        this.expirationDate = this.parseJobDate(jobData.displayUntil)
-        this.fullCountyName = jobData.fullCountyName
-        this.cityName = jobData.city
-        this.districtName = jobData.districtName
-        this.jobTypeID = jobData.jobTypeID
-        this.jobType = jobData.jobType
-        this.fullTimePartTime = jobData.fullTimePartTime
-        this.notificationSent = false;
+        const normalizedData = this.normalizeFields(jobData);
+
+        this.positionID = normalizedData.positionid;
+        this.positionTitle = normalizedData.positiontitle;
+        this.salaryInfo = normalizedData.salaryinfo;
+        this.postingDate = normalizedData.postingdate;
+        this.expirationDate = normalizedData.expirationdate;
+        this.fullCountyName = normalizedData.fullcountyname;
+        this.cityName = normalizedData.cityname;
+        this.districtName = normalizedData.districtname;
+        this.jobTypeID = normalizedData.jobtypeid;
+        this.jobType = normalizedData.jobtype;
+        this.fullTimePartTime = normalizedData.fulltimeparttime;
+        this.notificationSent = normalizedData.notificationsent || false;
+    }
+
+    normalizeFields(data) {
+        return {
+            positionid: data.postingID || data.positionid,
+            positiontitle: data.positionTitle || data.positiontitle,
+            salaryinfo: data.salaryInfo || data.salaryinfo,
+            postingdate: this.parseJobDate(data.postingDate) || this.parseJobDate(data.postingdate), 
+            expirationdate: this.parseJobDate(data.displayUntil) || this.parseJobDate(data.expirationdate),
+            fullcountyname: data.fullCountyName || data.fullcountyname,
+            cityname: data.city || data.cityname,
+            districtname: data.districtName || data.districtname,
+            jobtypeid: data.jobTypeID || data.jobtypeid,
+            jobtype: data.jobType || data.jobtype,
+            fulltimeparttime: data.fullTimePartTime || data.fulltimeparttime,
+            notificationsent: data.notificationSent || data.notificationsent,
+        };
     }
 
     async addJobToDb() {
@@ -23,18 +42,18 @@ class JobPosting {
             if (!jobExists) {
                 const query = `
                 INSERT INTO jobs
-                (position_id, position_title, salary_info, posting_date, expiration_date, full_county_name, city_name, district_name, job_type_id, job_type, fulltime_parttime, notification_sent)
+                (positionID, positionTitle, salaryInfo, postingDate, expirationDate, fullCountyName, cityName, districtName, jobTypeID, jobType, fullTimePartTime, notificationSent)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
                 `;
 
                 const values = [
-                    this.postingID, 
+                    this.positionID, 
                     this.positionTitle, 
                     this.salaryInfo, 
                     this.postingDate, 
                     this.expirationDate, 
                     this.fullCountyName, 
-                    this.city,
+                    this.cityName,
                     this.districtName, 
                     this.jobTypeID, 
                     this.jobType, 
@@ -56,20 +75,24 @@ class JobPosting {
 
     async deleteJobFromDb() {
         try {
-            await pool.query(`DELETE FROM jobs WHERE position_id=${this.postingID}`)
+            await pool.query(`DELETE FROM jobs WHERE positionID=${this.positionID}`)
+            console.log('deleted');
         } catch (error) {
             console.error('Error deleting job:', error);
         }
-        console.log('deleted');
     }
 
     parseJobDate(rawDate) {
-        return new Date(parseInt(rawDate.replace('/Date(', '').replace(')/', '')));
+        if (rawDate) {
+            return new Date(parseInt(rawDate.replace('/Date(', '').replace(')/', '')));
+        }
+        
+        return null
     }
 
     async checkJobExistsInDb() {
         try {
-            const jobExists = await pool.query(`SELECT 1 FROM jobs WHERE position_id = ${this.postingID}`);
+            const jobExists = await pool.query(`SELECT 1 FROM jobs WHERE positionID = ${this.positionID}`);
             return jobExists.rows.length > 0;
 
         } catch (error) {
@@ -80,7 +103,6 @@ class JobPosting {
     static async getAllJobPostingsInDb() {
         try {
             const allJobsInDb = await pool.query('SELECT * FROM jobs');
-            console.log(allJobsInDb.rows);
             return allJobsInDb.rows;
 
         } catch (error) {
@@ -90,7 +112,7 @@ class JobPosting {
 
     static async getJobPostingsPendingNotification() {
         try {
-            const jobs = await pool.query('SELECT * FROM jobs WHERE notification_sent=false')
+            const jobs = await pool.query('SELECT * FROM jobs WHERE notificationSent=false')
             return jobs.rows;
 
         } catch (error) {
@@ -105,9 +127,9 @@ class JobPosting {
             const updatePromises = jobsPendingUpdate.map(async (job) => {
                 await pool.query(
                     `UPDATE jobs 
-                     SET notification_sent = true 
-                     WHERE position_id = $1`,
-                    [job.position_id]
+                     SET notificationSent = true 
+                     WHERE positionID = $1`,
+                    [job.positionid]
                 );
             })
 

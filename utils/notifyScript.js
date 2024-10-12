@@ -1,4 +1,3 @@
-const { updateJobNotificationStatus } = require('./jobProcessor');
 const { notifyJobPostings } = require('./emailNotification')
 require('dotenv').config({ path: '../.env' });
 const JobPosting = require('../classes/JobPosting')

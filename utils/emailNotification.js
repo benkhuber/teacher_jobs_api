@@ -158,11 +158,11 @@ async function formatMessageForEmail(jobs) {
     jobs.forEach(job => {
         message += `
             <li>
-                <strong>Position:</strong> ${job.position_title}<br/>
-                <strong>City Name:</strong> ${job.city_name}<br/>
-                <strong>District Name:</strong> ${job.district_name}<br/>
-                <strong>Job Type:</strong> ${job.job_type}<br/>
-                <a href="https://edjoin.org/Home/JobPosting/${job.position_id}" target="_blank" class="button">Go To Job Posting</a>
+                <strong>Position:</strong> ${job.positiontitle}<br/>
+                <strong>City Name:</strong> ${job.cityname}<br/>
+                <strong>District Name:</strong> ${job.districtname}<br/>
+                <strong>Job Type:</strong> ${job.jobtype}<br/>
+                <a href="https://edjoin.org/Home/JobPosting/${job.positionid}" target="_blank" class="button">Go To Job Posting</a>
             </li>
         `
     });
