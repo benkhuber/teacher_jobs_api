@@ -112,7 +112,7 @@ class JobPosting {
 
     static async getJobPostingsPendingNotification() {
         try {
-            const jobs = await pool.query('SELECT * FROM jobs WHERE notificationSent=false')
+            const jobs = await pool.query('SELECT * FROM jobs WHERE notificationsent=false')
             return jobs.rows;
 
         } catch (error) {
@@ -127,8 +127,8 @@ class JobPosting {
             const updatePromises = jobsPendingUpdate.map(async (job) => {
                 await pool.query(
                     `UPDATE jobs 
-                     SET notificationSent = true 
-                     WHERE positionID = $1`,
+                     SET notificationsent = true 
+                     WHERE positionid = $1`,
                     [job.positionid]
                 );
             })
