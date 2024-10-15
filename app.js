@@ -7,12 +7,13 @@ const path = require('path');
 
 const app = express();
 const port = process.env.PORT;
-const pool = require('./db');
 
 const { notifyJobPostings, 
         notifyAllJobsPostings } = require('./utils/emailNotification');
 const fetchNewJobs = require('./utils/notifyScript');
+
 const JobPosting = require('./classes/JobPosting');
+const db = require('./classes/Database');
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
@@ -37,12 +38,12 @@ app.post('/api/subscribe', async (req, res) => {
     console.log(email);
 
     try {
-        const existingEmail = await pool.query('SELECT * FROM email_subscribers WHERE email = $1', [email]);
+        const existingEmail = await db.query('SELECT * FROM email_subscribers WHERE email = $1', [email]);
         if (existingEmail.rows.length > 0) {
             return res.status(400).json({ message: 'Email is already subscribed.' });
         }
 
-        await pool.query('INSERT INTO email_subscribers (email) VALUES ($1)', [email]);
+        await db.query('INSERT INTO email_subscribers (email) VALUES ($1)', [email]);
         res.status(200).json({ message: 'Thank you for subscribing!' });
     } catch (error) {
         console.error('Error subscribing email:', error);
@@ -117,14 +118,16 @@ app.get('/api/clear_all_jobs', async (req, res) => {
 
 app.get('/api/clear_expired_jobs', async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM jobs WHERE expirationdate < NOW()')
+        const response = await db.query('SELECT * FROM jobs WHERE expirationdate < NOW()')
 
         if (response.rows[0] != undefined) {
             const jobs = response.rows
 
             for (const job of jobs) {
+                console.log(job);
                 const jobPendingDeletion = new JobPosting(job)
                 jobPendingDeletion.deleteJobFromDb();
+                console.log("deleting expired job");
             }
             res.send(`Status: ${response.status}, deleting expired jobs.`);
         } else {

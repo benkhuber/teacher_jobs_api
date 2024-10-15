@@ -1,9 +1,9 @@
-const pool = require('../db');
+const db = require('./Database');
 
 class JobPosting {
     constructor(jobData) {
         const normalizedData = this.normalizeFields(jobData);
-
+ 
         this.positionID = normalizedData.positionid;
         this.positionTitle = normalizedData.positiontitle;
         this.salaryInfo = normalizedData.salaryinfo;
@@ -61,7 +61,7 @@ class JobPosting {
                     this.notificationSent,
                 ];
 
-                await pool.query(query, values);
+                await db.query(query, values);
 
                 console.log('Job did not exist in DB, added to DB');
 
@@ -75,7 +75,7 @@ class JobPosting {
 
     async deleteJobFromDb() {
         try {
-            await pool.query(`DELETE FROM jobs WHERE positionID=${this.positionID}`)
+            await db.query(`DELETE FROM jobs WHERE positionID=${this.positionID}`)
             console.log('deleted');
         } catch (error) {
             console.error('Error deleting job:', error);
@@ -83,7 +83,7 @@ class JobPosting {
     }
 
     parseJobDate(rawDate) {
-        if (rawDate) {
+        if (rawDate && typeof rawDate === 'string') {
             return new Date(parseInt(rawDate.replace('/Date(', '').replace(')/', '')));
         }
         
@@ -92,7 +92,7 @@ class JobPosting {
 
     async checkJobExistsInDb() {
         try {
-            const jobExists = await pool.query(`SELECT 1 FROM jobs WHERE positionID = ${this.positionID}`);
+            const jobExists = await db.query(`SELECT 1 FROM jobs WHERE positionID = ${this.positionID}`);
             return jobExists.rows.length > 0;
 
         } catch (error) {
@@ -102,7 +102,7 @@ class JobPosting {
 
     static async getAllJobPostingsInDb() {
         try {
-            const allJobsInDb = await pool.query('SELECT * FROM jobs');
+            const allJobsInDb = await db.query('SELECT * FROM jobs');
             return allJobsInDb.rows;
 
         } catch (error) {
@@ -112,7 +112,7 @@ class JobPosting {
 
     static async getJobPostingsPendingNotification() {
         try {
-            const jobs = await pool.query('SELECT * FROM jobs WHERE notificationsent=false')
+            const jobs = await db.query('SELECT * FROM jobs WHERE notificationsent=false')
             return jobs.rows;
 
         } catch (error) {
@@ -125,7 +125,7 @@ class JobPosting {
             const jobsPendingUpdate = await this.getJobPostingsPendingNotification();
 
             const updatePromises = jobsPendingUpdate.map(async (job) => {
-                await pool.query(
+                await db.query(
                     `UPDATE jobs 
                      SET notificationsent = true 
                      WHERE positionid = $1`,

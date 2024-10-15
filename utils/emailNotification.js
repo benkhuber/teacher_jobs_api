@@ -1,7 +1,8 @@
 require('dotenv').config({ path: '../.env' });
 const postmark = require("postmark");
+
 const JobPosting = require('../classes/JobPosting')
-const pool = require('../db');
+const db = require('../classes/Database');
 
 const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
@@ -22,7 +23,7 @@ async function sendEmail(toEmail, subject, message) {
 
 async function getEmailSubscribers() {
     try {
-        const result = await pool.query('SELECT * FROM email_subscribers');
+        const result = await db.query('SELECT * FROM email_subscribers');
         return result.rows;
     } catch (error) {
         console.error('Error retrieving emails:', error);
