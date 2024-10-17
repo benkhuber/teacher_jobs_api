@@ -1,8 +1,9 @@
-require('dotenv').config({ path: '../.env' });
-const postmark = require("postmark");
+import dotenv from 'dotenv';
+dotenv.config();
+import postmark from 'postmark';
 
-const JobPosting = require('../classes/JobPosting')
-const db = require('../classes/Database');
+import JobPosting from '../classes/JobPosting.js';
+import db from '../classes/Database.js';
 
 const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
@@ -178,4 +179,4 @@ async function formatMessageForEmail(jobs) {
     return message;
 }
 
-module.exports = { sendEmail, notifyJobPostings, notifyAllJobsPostings };
+export { sendEmail, notifyJobPostings, notifyAllJobsPostings };

@@ -14,4 +14,4 @@ class EmailTemplate {
     }
 }
 
-module.exports = EmailTemplate;
+export default EmailTemplate;

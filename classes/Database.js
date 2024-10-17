@@ -1,5 +1,8 @@
-const { Pool } = require('pg');
-require('dotenv').config();
+import pkg from 'pg';
+const { Pool } = pkg;
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 class Database {
     constructor() {
@@ -81,4 +84,4 @@ const db = new Database();
 db.ensureJobsTable();
 db.ensureEmailsTable();
 
-module.exports = db;
+export default db;

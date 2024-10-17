@@ -1,4 +1,4 @@
-const db = require('./Database');
+import db from '../classes/Database.js';
 
 class JobPosting {
     constructor(jobData) {
@@ -142,4 +142,4 @@ class JobPosting {
     }
 }
 
-module.exports = JobPosting;
+export default JobPosting;

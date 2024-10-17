@@ -1,7 +1,9 @@
-const { notifyJobPostings } = require('./emailNotification')
-require('dotenv').config({ path: '../.env' });
-const JobPosting = require('../classes/JobPosting')
-const axios = require('axios');
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
+import axios from 'axios';
+
+import JobPosting from '../classes/JobPosting.js';
+import { notifyJobPostings } from './emailNotification.js';
 
 async function fetchNewJobs() {
     try {
@@ -36,4 +38,4 @@ async function fetchNewJobs() {
     }
 }
 
-module.exports = fetchNewJobs;
+export default fetchNewJobs;

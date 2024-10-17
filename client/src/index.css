@@ -71,10 +71,12 @@ button:focus-visible {
 
 */
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-
-/* General CSS */ 
-:root {
+/* General CSS  */
+/* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -93,11 +95,11 @@ body, html {
 body {
   width: 100%;
   box-sizing: border-box;
-}
+} */
 
 
 /* All Jobs Page */
-.job-grid {
+/* .job-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
@@ -125,11 +127,11 @@ body {
 
 .job-details {
   margin-top: 10px;
-}
+} */
 
 
 /* NavBar */
-.navBar {
+/* .navBar {
   display: flex;
   border-bottom: 4px solid black;
   justify-content: space-between;
@@ -160,4 +162,4 @@ body {
 
 .navBarLinks:hover {
   background-color: rgb(179, 128, 244);
-}
+} */

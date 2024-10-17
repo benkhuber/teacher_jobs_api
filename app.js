@@ -1,19 +1,23 @@
-require('dotenv').config();
-const express = require('express');
-const bodyParser = require('body-parser');
-const axios = require('axios');
-const cron = require('node-cron');
-const path = require('path');
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import bodyParser from 'body-parser';
+import axios from 'axios';
+import cron from 'node-cron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT;
 
-const { notifyJobPostings, 
-        notifyAllJobsPostings } = require('./utils/emailNotification');
-const fetchNewJobs = require('./utils/notifyScript');
-
-const JobPosting = require('./classes/JobPosting');
-const db = require('./classes/Database');
+import { notifyJobPostings, 
+         notifyAllJobsPostings } from './utils/emailNotification.js';
+import fetchNewJobs from './utils/notifyScript.js';
+import JobPosting from './classes/JobPosting.js';
+import db from './classes/Database.js';
+import Subscriber from './classes/Subscriber.js';
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'client', 'dist')));
@@ -26,6 +30,7 @@ app.get('/api/jobs', async (req, res) => {
     try {
         const allJobsInDb = await JobPosting.getAllJobPostingsInDb();
         res.json(allJobsInDb);
+
     } catch (error) {
         console.error('Error fetching jobs', error);
         res.status(500).send('server error');
@@ -33,9 +38,11 @@ app.get('/api/jobs', async (req, res) => {
 })
 
 app.post('/api/subscribe', async (req, res) => {
-    const { email } = req.body;
+    const { email, firstName, lastName } = req.body;
 
-    console.log(email);
+    const newSubscriber = new Subscriber(email, firstName, lastName);
+
+    console.log(newSubscriber);
 
     try {
         const existingEmail = await db.query('SELECT * FROM email_subscribers WHERE email = $1', [email]);
@@ -45,28 +52,10 @@ app.post('/api/subscribe', async (req, res) => {
 
         await db.query('INSERT INTO email_subscribers (email) VALUES ($1)', [email]);
         res.status(200).json({ message: 'Thank you for subscribing!' });
+
     } catch (error) {
         console.error('Error subscribing email:', error);
         res.status(500).json({ message: 'An error occurred. Please try again later.' });
-    }
-})
-
-app.get('/api/test_job_posting_class', async (req, res) => {
-    const url = process.env.API_URL;
-    try {
-        const response = await axios.get(url);
-        
-        if (response.status === 200) {
-            const jobData = response.data.data
-
-            for (const job of jobData) {
-                const newJob = new JobPosting(job);
-                newJob.addJobToDb();
-            }
-        }
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).send('Server error');
     }
 })
 
