@@ -125,6 +125,26 @@ class Database {
             client.release()
         }
     }
+
+    async ensureSubscriberJobTypesTable() {
+        const client = await this.connect();
+        const createSubscriberJobTypesTableQuery = `
+            CREATE TABLE IF NOT EXISTS subscriber_job_types (
+                id SERIAL PRIMARY KEY,
+                subscriberID INTEGER NOT NULL,
+                jobtypeID INTEGER NOT NULL
+            );
+        `;
+
+        try {
+            await client.query(createSubscriberJobTypesTableQuery);
+            console.log('Subscriber job types table created or exists already');
+        } catch (error) {
+            console.error('Error creating subscriber job types table: ', error);
+        } finally {
+            client.release();
+        }
+    }
 }
 
 const db = new Database();
@@ -132,5 +152,6 @@ db.ensureJobsTable();
 db.ensureEmailsTable();
 db.ensureJobTypesTable();
 db.populateJobTypesTable();
+db.ensureSubscriberJobTypesTable();
 
 export default db;
