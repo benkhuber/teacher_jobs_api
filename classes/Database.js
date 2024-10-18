@@ -18,6 +18,17 @@ class Database {
         return this.pool.connect();
     }
 
+    async query(queryText, params) {
+        const client = await this.connect();
+
+        try {
+            const res = await client.query(queryText, params);
+            return res;
+        } finally {
+            client.release();
+        }
+    }
+
     async ensureJobsTable() {
         const client = await this.connect();
         const createJobsTableQuery = `
@@ -54,7 +65,9 @@ class Database {
             CREATE TABLE IF NOT EXISTS email_subscribers (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                firstname VARCHAR(255),
+                lastname VARCHAR(255)
             );
         `;
     
@@ -68,14 +81,48 @@ class Database {
         }
     }
 
-    async query(queryText, params) {
+    async ensureJobTypesTable() {
         const client = await this.connect();
+        const createJobsTypesTableQuery = `
+            CREATE TABLE IF NOT EXISTS job_types (
+            id INTEGER PRIMARY KEY,
+            name VARCHAR(255) UNIQUE NOT NULL
+            )
+        `;
 
         try {
-            const res = await client.query(queryText, params);
-            return res;
+            await client.query(createJobsTypesTableQuery);
+            console.log('Job types table created or exists already.');
+        } catch (error) {
+            console.error('Error creating job types table:', error);
         } finally {
             client.release();
+        }
+    }
+
+    async populateJobTypesTable() {
+        const client = await this.connect();
+        const populateJobTypesTableQuery = `
+            INSERT INTO job_types (id, name)
+            VALUES
+            (2, 'Teacher 1-3'),
+            (3, 'Teacher 4-6'),
+            (55, 'Teacher Childrens Center'),
+            (48, 'Teacher K-6'),
+            (64, 'Teacher K-8'),
+            (1, 'Teacher Kindergarten'),
+            (7, 'Teacher Other'),
+            (63, 'Teacher Pre-K')
+            ON CONFLICT (id) DO NOTHING;
+        `;
+
+        try {
+            await client.query(populateJobTypesTableQuery);
+            console.log('Job types table populated');
+        } catch (error) {
+            console.error('Error populating job types table: ', error);
+        } finally {
+            client.release()
         }
     }
 }
@@ -83,5 +130,7 @@ class Database {
 const db = new Database();
 db.ensureJobsTable();
 db.ensureEmailsTable();
+db.ensureJobTypesTable();
+db.populateJobTypesTable();
 
 export default db;

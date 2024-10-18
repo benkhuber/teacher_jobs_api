@@ -38,9 +38,9 @@ app.get('/api/jobs', async (req, res) => {
 })
 
 app.post('/api/subscribe', async (req, res) => {
-    const { email, firstName, lastName } = req.body;
+    const { email, firstName, lastName, jobTypes } = req.body;
 
-    const newSubscriber = new Subscriber(email, firstName, lastName);
+    const newSubscriber = new Subscriber(email, firstName, lastName, jobTypes);
 
     console.log(newSubscriber);
 
@@ -50,7 +50,8 @@ app.post('/api/subscribe', async (req, res) => {
             return res.status(400).json({ message: 'Email is already subscribed.' });
         }
 
-        await db.query('INSERT INTO email_subscribers (email) VALUES ($1)', [email]);
+        await db.query('INSERT INTO email_subscribers (email, firstname, lastname) VALUES ($1, $2, $3)', 
+            [newSubscriber.email, newSubscriber.firstName, newSubscriber.lastName]);
         res.status(200).json({ message: 'Thank you for subscribing!' });
 
     } catch (error) {
