@@ -171,7 +171,7 @@ function SubscribeForm() {
                             className='w-4 h-4 text-blue-600 focus:ring-blue-500' 
                             type="checkbox" 
                             name="jobType" 
-                            value="64" 
+                            value="63" 
                             onChange={(e) => manageJobTypes(e.target.value)}/>
                         Teacher Pre-K
                 </label>

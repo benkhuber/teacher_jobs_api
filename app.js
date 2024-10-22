@@ -12,8 +12,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT;
 
-import { notifyJobPostings, 
-         notifyAllJobsPostings } from './utils/emailNotification.js';
+import { notifyJobPostings } from './utils/emailNotification.js';
 import fetchNewJobs from './utils/notifyScript.js';
 import JobPosting from './classes/JobPosting.js';
 import db from './classes/Database.js';
@@ -82,7 +81,7 @@ app.get('/api/fetch_jobs', async (req, res) => {
             for (const job of jobData) {
                 const newJobPosting = new JobPosting(job);
 
-                newJobPosting.addJobToDb();
+                await newJobPosting.addJobToDb();
             }
             res.send(`Status: ${response.status}, collecting jobs...`);
         } else {
@@ -104,9 +103,8 @@ app.get('/api/clear_all_jobs', async (req, res) => {
             const jobs = response.data
 
             for (const job of jobs) {
-                jobPendingDeletion = new JobPosting(job)
+                const jobPendingDeletion = new JobPosting(job)
                 jobPendingDeletion.deleteJobFromDb()
-
             }
         }
         res.send(`Status: ${response.status}, clearing jobs...`);
@@ -190,17 +188,6 @@ app.get('/api/add_test_job_posting', async (req, res) => {
     }
 })
 
-app.get('/api/notify_all_jobs', async (req, res) => {
-    try {
-        const response = await notifyAllJobsPostings();
-        res.send(`sending notification`)
-
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        res.status(500).send('Server error');
-    }
-})
-
 app.get('/api/test_notify', async (req, res) => {
     try {
         const jobs = await JobPosting.getJobPostingsPendingNotification();
@@ -221,6 +208,15 @@ app.get('/api/test_notify', async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching new jobs', error);
+    }
+})
+
+app.get('/api/run_notify_script', async (req, res) => {
+    try {
+        fetchNewJobs();
+        res.json('All good')
+    } catch (error) {
+        console.error('Error running fetchNewJobs script');
     }
 })
 

@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import postmark from 'postmark';
+import axios from 'axios';
 
 import JobPosting from '../classes/JobPosting.js';
 import db from '../classes/Database.js';
+
 
 const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
@@ -31,48 +33,80 @@ async function getEmailSubscribers() {
     }
 }
 
-async function notifyJobPostings(jobs) {
+// async function getEmailSubscribersJobTypes(emailId) {
+//     try {
+//         const result = await db.query('SELECT * FROM ')
+//     }
+// }
+
+async function notifyJobPostings() {
     try {
-        const emailSubscribers = await getEmailSubscribers();
+        const url = process.env.VITE_SERVER_URL
+        const apiResponse = await axios.get(`${url}/api/fetch_jobs`);
 
-        for (const subscriber of emailSubscribers) {
-            const email = subscriber.email
-            const subject = await formatSubjectForEmail(jobs);
-            const message = await formatMessageForEmail(jobs);
-    
-            try {
-                await sendEmail(email, subject, message);
-            } catch (error) {
-                console.error(error)
-            }
-        };
-    } catch (error) {
-        console.error('Error notifying all job postings');
-    }
-}
-
-async function notifyAllJobsPostings() {
-    try {
-        const jobs = await JobPosting.getAllJobPostingsInDb();
-
-        if (jobs.length > 0) {
-            const email = process.env.TEST_EMAIL;
-            const subject = await formatSubjectForEmail(jobs);
-            const message = await formatMessageForEmail(jobs);
-        
-            try {
-                await sendEmail(email, subject, message);
-            } catch (error) {
-                console.error(error)
-            }
+        if (apiResponse.status === 200) {
+            console.log('Successfully fetched');
         } else {
-            return 'No jobs'
+            console.error('Failed to fetch or add new jobs:', apiResponse.status);
         }
 
+        const jobs = await JobPosting.getJobPostingsPendingNotification();
+        const emailSubscribers = await getEmailSubscribers();
+        const jobsExist = jobs.length > 0;
+        // const isProduction = await (process.env.NODE_ENV == 'production');
+        const isProduction = process.env.NODE_ENV != 'production'
+
+        console.log(jobs);
+        console.log(jobsExist);
+        console.log(isProduction);
+
+        if (jobsExist && isProduction) {
+            console.log('Jobs exist, sending notification email');
+            
+            for (const subscriber of emailSubscribers) {
+                const email = subscriber.email
+                const subject = await formatSubjectForEmail(jobs);
+                const message = await formatMessageForEmail(jobs);
+        
+                try {
+                    await sendEmail(email, subject, message);
+                } catch (error) {
+                    console.error(error)
+                }
+            };
+        
+        // JobPosting.updateJobNotificationStatus();
+
+        } else {
+            console.log('No jobs exist or not in production. No email notification sent');
+        }
     } catch (error) {
         console.error('Error notifying all job postings');
     }
 }
+
+// async function notifyAllJobsPostings() {
+//     try {
+//         const jobs = await JobPosting.getAllJobPostingsInDb();
+
+//         if (jobs.length > 0) {
+//             const email = process.env.TEST_EMAIL;
+//             const subject = await formatSubjectForEmail(jobs);
+//             const message = await formatMessageForEmail(jobs);
+        
+//             try {
+//                 await sendEmail(email, subject, message);
+//             } catch (error) {
+//                 console.error(error)
+//             }
+//         } else {
+//             return 'No jobs'
+//         }
+
+//     } catch (error) {
+//         console.error('Error notifying all job postings');
+//     }
+// }
 
 async function formatSubjectForEmail(jobs) {
     let subject = '[Job Alert] New Elementary Teacher Job Posting'
@@ -179,4 +213,4 @@ async function formatMessageForEmail(jobs) {
     return message;
 }
 
-export { sendEmail, notifyJobPostings, notifyAllJobsPostings };
+export { sendEmail, notifyJobPostings };
