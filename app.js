@@ -52,6 +52,17 @@ app.post('/api/subscribe', async (req, res) => {
 
         await db.query('INSERT INTO email_subscribers (email, firstname, lastname) VALUES ($1, $2, $3)', 
             [newSubscriber.email, newSubscriber.firstName, newSubscriber.lastName]);
+
+        const getNewSubscriberId = await db.query('SELECT id FROM email_subscribers WHERE email = $1', [newSubscriber.email])
+        
+        const newSubsciberId = getNewSubscriberId.rows[0].id;
+
+        for (const jobType of newSubscriber.jobTypes) {
+            console.log(newSubsciberId);
+            console.log(jobType);
+            await db.query('INSERT INTO subscriber_job_types (subscriberid, jobtypeid) VALUES ($1, $2)',
+                [newSubsciberId, jobType]);
+        }
         res.status(200).json({ message: 'Thank you for subscribing!' });
 
     } catch (error) {
