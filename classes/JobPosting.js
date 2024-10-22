@@ -113,7 +113,6 @@ class JobPosting {
     static async getJobPostingsPendingNotification() {
         try {
             const jobs = await db.query('SELECT * FROM jobs WHERE notificationsent=false');
-            console.log('Raw job query result:', jobs.rows); 
             return jobs.rows;
 
         } catch (error) {

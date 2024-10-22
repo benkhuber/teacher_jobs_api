@@ -33,11 +33,21 @@ async function getEmailSubscribers() {
     }
 }
 
-// async function getEmailSubscribersJobTypes(emailId) {
-//     try {
-//         const result = await db.query('SELECT * FROM ')
-//     }
-// }
+async function getEmailSubscribersJobTypes(emailId) {
+    try {
+        const result = await db.query(`SELECT * FROM subscriber_job_types WHERE subscriberid=${emailId}`)
+        let jobTypes = []
+        if (result.rows.length > 0) {
+            for (const jobType of result.rows)
+            {
+                jobTypes.push(jobType.jobtypeid);
+            }
+        }
+        return jobTypes
+    } catch (error) {
+        console.error('Error getting email subscriber job types', error);
+    }
+}
 
 async function notifyJobPostings() {
     try {
@@ -53,20 +63,26 @@ async function notifyJobPostings() {
         const jobs = await JobPosting.getJobPostingsPendingNotification();
         const emailSubscribers = await getEmailSubscribers();
         const jobsExist = jobs.length > 0;
-        // const isProduction = await (process.env.NODE_ENV == 'production');
-        const isProduction = process.env.NODE_ENV != 'production'
-
-        console.log(jobs);
-        console.log(jobsExist);
-        console.log(isProduction);
+        const isProduction = await (process.env.NODE_ENV == 'production');
+        
+        // Uncomment to test email notification in development.
+        // const isProduction = process.env.NODE_ENV != 'production'
 
         if (jobsExist && isProduction) {
             console.log('Jobs exist, sending notification email');
             
             for (const subscriber of emailSubscribers) {
                 const email = subscriber.email
-                const subject = await formatSubjectForEmail(jobs);
-                const message = await formatMessageForEmail(jobs);
+                const jobTypes = await getEmailSubscribersJobTypes(subscriber.id);
+                let matchingJobs = []
+
+                for (const job of jobs) {
+                    if (jobTypes.includes(job.jobtypeid)) {
+                        matchingJobs.push(job);
+                    }
+                }
+                const subject = await formatSubjectForEmail(matchingJobs);
+                const message = await formatMessageForEmail(matchingJobs);
         
                 try {
                     await sendEmail(email, subject, message);
@@ -75,7 +91,7 @@ async function notifyJobPostings() {
                 }
             };
         
-        // JobPosting.updateJobNotificationStatus();
+        JobPosting.updateJobNotificationStatus();
 
         } else {
             console.log('No jobs exist or not in production. No email notification sent');
@@ -84,29 +100,6 @@ async function notifyJobPostings() {
         console.error('Error notifying all job postings');
     }
 }
-
-// async function notifyAllJobsPostings() {
-//     try {
-//         const jobs = await JobPosting.getAllJobPostingsInDb();
-
-//         if (jobs.length > 0) {
-//             const email = process.env.TEST_EMAIL;
-//             const subject = await formatSubjectForEmail(jobs);
-//             const message = await formatMessageForEmail(jobs);
-        
-//             try {
-//                 await sendEmail(email, subject, message);
-//             } catch (error) {
-//                 console.error(error)
-//             }
-//         } else {
-//             return 'No jobs'
-//         }
-
-//     } catch (error) {
-//         console.error('Error notifying all job postings');
-//     }
-// }
 
 async function formatSubjectForEmail(jobs) {
     let subject = '[Job Alert] New Elementary Teacher Job Posting'
@@ -195,8 +188,8 @@ async function formatMessageForEmail(jobs) {
         message += `
             <li>
                 <strong>Position:</strong> ${job.positiontitle}<br/>
-                <strong>City Name:</strong> ${job.cityname}<br/>
-                <strong>District Name:</strong> ${job.districtname}<br/>
+                <strong>City:</strong> ${job.cityname ? job.cityname : 'No city provided.'}<br/>
+                <strong>District:</strong> ${job.districtname ? job.districtname : 'No district provided.'}<br/>
                 <strong>Job Type:</strong> ${job.jobtype}<br/>
                 <a href="https://edjoin.org/Home/JobPosting/${job.positionid}" target="_blank" class="button">Go To Job Posting</a>
             </li>

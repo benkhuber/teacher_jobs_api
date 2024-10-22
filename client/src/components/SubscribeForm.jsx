@@ -8,8 +8,6 @@ function SubscribeForm() {
   const [jobTypes, setJobTypes] = useState([]);
   const [message, setMessage] = useState('');
 
-    console.log(jobTypes)
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newSubscriber = new Subscriber(email, firstName, lastName, jobTypes);
