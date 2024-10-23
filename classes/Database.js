@@ -92,6 +92,7 @@ class Database {
 
         try {
             await client.query(createJobsTypesTableQuery);
+            await db.populateJobTypesTable();
             console.log('Job types table created or exists already.');
         } catch (error) {
             console.error('Error creating job types table:', error);
@@ -151,7 +152,6 @@ const db = new Database();
 db.ensureJobsTable();
 db.ensureEmailsTable();
 db.ensureJobTypesTable();
-db.populateJobTypesTable();
 db.ensureSubscriberJobTypesTable();
 
 export default db;
