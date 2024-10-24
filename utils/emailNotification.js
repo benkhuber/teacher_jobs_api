@@ -63,9 +63,11 @@ async function notifyJobPostings() {
         const jobs = await JobPosting.getJobPostingsPendingNotification();
         const emailSubscribers = await getEmailSubscribers();
         const jobsExist = jobs.length > 0;
-        const isProduction = await (process.env.NODE_ENV == 'production');
+
+        // Production
+        const isProduction = process.env.NODE_ENV == 'production';
         
-        // Uncomment to test email notification in development.
+        // Development
         // const isProduction = process.env.NODE_ENV != 'production'
 
         if (jobsExist && isProduction) {
@@ -81,13 +83,18 @@ async function notifyJobPostings() {
                         matchingJobs.push(job);
                     }
                 }
-                const subject = await formatSubjectForEmail(matchingJobs);
-                const message = await formatMessageForEmail(matchingJobs);
-        
-                try {
-                    await sendEmail(email, subject, message);
-                } catch (error) {
-                    console.error(error)
+
+                if (matchingJobs.length > 0) {
+                    const subject = await formatSubjectForEmail(matchingJobs);
+                    const message = await formatMessageForEmail(matchingJobs);
+            
+                    try {
+                        await sendEmail(email, subject, message);
+                    } catch (error) {
+                        console.error(error)
+                    }
+                } else {
+                    console.log(`No job matches ${subscriber.email} preferences`)
                 }
             };
         
