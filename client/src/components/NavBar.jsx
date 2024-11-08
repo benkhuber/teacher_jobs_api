@@ -17,6 +17,7 @@ function NavBar() {
         <div className="hidden md:flex space-x-6 text-white">
           <a className="hover:text-gray-300" href="/">Home</a>
           <a className="hover:text-gray-300" href="/about">About</a>
+          {/* <a className="hover:text-gray-300" href="/signup">Sign Up</a> */}
           <a className="hover:text-gray-300" href="/alljobs">All Current Jobs</a>
         </div>
 
@@ -47,6 +48,7 @@ function NavBar() {
         <div className="md:hidden mt-2 space-y-2 text-white">
           <a className="block hover:bg-blue-700 p-2" href="/">Home</a>
           <a className="block hover:bg-blue-700 p-2" href="/about">About</a>
+          {/* <a className="block hover:bg-blue-700 p-2" href="/signup">Sign Up</a> */}
           <a className="block hover:bg-blue-700 p-2" href="/alljobs">All Current Jobs</a>
         </div>
       )}
